@@ -17,95 +17,68 @@
 </H1>
 <?php
 
-    //表示する時のエスケープ処理関数
-    function checkEscape($str)
-    {
-        return htmlspecialchars($str, ENT_QUOTES, 'UTF-8');
-    }
-    
-    //入力チェック関数(文字列用)
-    function checkString($str)
-    {
-        //戻り値用
-        $result = false;
-        
-        if ($str === '') {
-            echo '<font color="red">   回答が入力されていません！</font><br><br>';
-        } elseif (!is_string($str)) {
-            echo '<font color="red">   回答が不正送信されました！</font><br><br>';
-        } else {
-            $result = true;
-        }
-        return $result;
-    }
+//自作関数を使用する
+require 'QuizLib.php';
 
-    //入力チェック関数(配列用)
-    function checkArray($array)
-    {
-        //戻り値用
-        $result = false;
-        //配列の不正判定用
-        $frag = false;
+$quizLib = new QuizLib();
 
-        if (!is_array($array)) {
-            echo '<font color="red">   回答が入力されていません！</font><br><br>';
-        } else {
-            foreach ($array as $value) {
-                if (!is_string($value)) {
-                    echo '<font color="red">   回答が不正送信されました！</font><br><br>';
-                    $frag = true;
-                }
-            }
-            if (!$frag) {
-                $result = true;
-            }
-        }
-        return $result;
+
+echo "クイズ１：回答→";
+
+//クイズ１回答がNULLで無いかつ文字列の場合、正誤判定を行う
+$buf = filter_input(INPUT_POST, 'quiz1', FILTER_UNSAFE_RAW);
+if (is_string($buf)) {
+    //回答内容を表示する
+    echo "[",$quizLib->checkEscape($buf),"]";
+    //正誤判定を行う
+    if (strcmp("HTML", $buf) === 0) {
+        echo '<font color="green">   正解！</font><br><br>';
+    } else {
+        echo '<font color="red">  不正解！</font><br><br>';
     }
-    
-    //クイズ１の回答チェック
-    echo "クイズ１：回答→";
-    //quiz1がnullの場合、checkString($_POST['quiz1'])を呼び出すとundefined array keyエラーが発生する
-    if (!isset($_POST['quiz1'])) {
-        echo '<font color="red">   回答が送信されていません！</font><br><br>';
-    } elseif (checkString($_POST['quiz1'])) {
-        echo "[",checkEscape($_POST['quiz1']),"]";
-        if (strcmp("HTML", $_POST['quiz1']) === 0) {
+} else {
+    echo '<font color="red">   回答が入力されていません！</font><br><br>';
+}
+
+
+echo "クイズ２：回答→";
+
+//チェックボックスがNULLの場合
+if (!isset($_POST['quiz2'])) {
+    echo '<font color="red">   回答が送信されていません！</font><br><br>';
+//NULLではない場合、配列チェックを行う
+} elseif ($quizLib->checkArray($_POST['quiz2'])) {
+    //回答内容を表示する
+    foreach($_POST['quiz2'] as $value){
+       echo "[",$quizLib->checkEscape($value),"]","\n";
+    }
+    //正誤判定を行う
+    if (in_array("Apache", $_POST['quiz2'])
+        && !in_array("iPhone", $_POST['quiz2'])
+        && in_array("Tomcat", $_POST['quiz2'])) {
             echo '<font color="green">   正解！</font><br><br>';
-        } else {
-            echo '<font color="red">  不正解！</font><br><br>';
-        }
+    } else {
+        echo '<font color="red">  不正解！</font><br><br>';
     }
+}
 
-    //クイズ２の回答チェック
-    echo "クイズ２：回答→";
-    if (!isset($_POST['quiz2'])) {
-        echo '<font color="red">   回答が送信されていません！</font><br><br>';
-    } elseif (checkArray($_POST['quiz2'])) {
-        foreach($_POST['quiz2'] as $value){
-           echo "[",checkEscape($value),"]","\n";
-        }
-        if (in_array("Apache", $_POST['quiz2'])
-            && !in_array("iPhone", $_POST['quiz2'])
-            && in_array("Tomcat", $_POST['quiz2'])) {
-                echo '<font color="green">   正解！</font><br><br>';
-        } else {
-            echo '<font color="red">  不正解！</font><br><br>';
-        }
-    }
+echo "クイズ３：回答→";
 
-    //クイズ３の回答チェック
-    echo "クイズ３：回答→";
-    if (!isset($_POST['quiz3'])) {
-        echo '<font color="red">   回答が送信されていません！</font><br><br>';
-    } elseif (checkString($_POST['quiz3'])) {
-        echo "[",checkEscape($_POST['quiz3']),"]";
-        if (strcmp("Edge", $_POST['quiz3']) === 0) {
-            echo '<font color="green">   正解！</font><br><br>';
-        } else {
-            echo '<font color="red">  不正解！</font><br><br>';
-        }
+//ラジオボタンがNULLの場合
+if (!isset($_POST['quiz3'])) {
+    echo '<font color="red">   回答が送信されていません！</font><br><br>';
+//NULLではない場合、文字列チェックを行う
+} elseif ($quizLib->checkString($_POST['quiz3'])) {
+    //回答内容を表示する
+    echo "[",$quizLib->checkEscape($_POST['quiz3']),"]";
+    //正誤判定を行う
+    if (strcmp("Edge", $_POST['quiz3']) === 0) {
+        echo '<font color="green">   正解！</font><br><br>';
+    } else {
+        echo '<font color="red">  不正解！</font><br><br>';
     }
+}
+
 ?>
 
 <a href="Quiz.php">戻る</a>
