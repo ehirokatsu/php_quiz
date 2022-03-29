@@ -15,7 +15,7 @@
 
 </H1>
 
-<form action="/Quiz_Answer.php" method="post" onsubmit="return check()">
+<form action="/Quiz_Answer.php" method="post"" name="quiz_form">
     <label for="quiz1">クイズ１：WEBページを記述するための言語は何でしょうか？</label>
     <br>
     <input type="text" id="quiz1" name="quiz1">
